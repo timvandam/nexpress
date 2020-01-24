@@ -1,7 +1,7 @@
 # nexpress
 Express like framework for TCP servers
 
-## Example
+## Examples
 
 ```js
 # Creating a simple nexpress tcp server
@@ -30,4 +30,19 @@ app.use((error, data, res, next) => {
 })
 
 app.listen(3000, () => console.log('Nexpress is now listening on port 3000'))
+```
+
+```js
+# Pipelines can be used to group middlewares together. They function like express routers and allow you to put a groups of middlewares in different files
+const nexpress = require('nexpress')
+const app = nexpress()
+
+const pipeline = new nexpress.Pipeline()
+pipeline.use((data, res) => {
+  res.send(Buffer.from('This is a simple pipeline'))
+})
+
+app.use(pipeline)
+
+app.listen(3000)
 ```
