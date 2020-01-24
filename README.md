@@ -25,8 +25,9 @@ app.use((data, res, next) => {
 })
 
 // Error handler middleware
+// Error handlers *must* have 4 parameters
 app.use((error, data, res, next) => {
-  // Handle your error here
+  handlerError(error)
 })
 
 app.listen(3000, () => console.log('Nexpress is now listening on port 3000'))
@@ -34,7 +35,7 @@ app.listen(3000, () => console.log('Nexpress is now listening on port 3000'))
 
 ```js
 // Pipelines can be used to group middlewares together.
-// They allow you group middlewares as a single middleware, much like express routers
+// They behave like a normal middleware, much like express routers
 const Nexpress = require('nexpress')
 const app = new Nexpress()
 
