@@ -1,5 +1,5 @@
 # nexpress
-Express like framework for TCP servers
+Express.js-like framework for TCP servers
 
 ## Examples
 
