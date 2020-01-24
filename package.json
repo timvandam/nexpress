@@ -19,7 +19,7 @@
     "debug": "^4.1.1"
   },
   "scripts": {
-    "start": "export DEBUG=*; node index",
+    "start": "export DEBUG=nexpress; node index",
     "lint": "eslint lib/**.js",
     "dev": "nodemon --exec \"yarn lint && yarn start\""
   }
