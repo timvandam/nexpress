@@ -33,7 +33,8 @@ app.listen(3000, () => console.log('Nexpress is now listening on port 3000'))
 ```
 
 ```js
-// Pipelines can be used to group middlewares together. They function like express routers and allow you to put a groups of middlewares in different files
+// Pipelines can be used to group middlewares together.
+// They allow you group middlewares as a single middleware, much like express routers
 const nexpress = require('nexpress')
 const app = nexpress()
 
