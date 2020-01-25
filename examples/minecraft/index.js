@@ -15,15 +15,22 @@ const SERVER_STATUS = {
     protocol: 578
   },
   players: {
-    max: 876543210,
-    online: 123456789,
+    max: 321,
+    online: 123,
     sample: []
   },
   description: {
     text: 'Hello World!',
-    bold: true,
-    color: 'green'
+    color: 'green',
+    bold: true
   }
+}
+
+// Disconnect message
+const DISCONNECT_MSG = {
+  text: 'Made with Nexpress!',
+  color: 'yellow',
+  bold: true
 }
 
 // Default socket state to Handshaking
@@ -109,6 +116,27 @@ packetHandler.use(0x01, (data, res, next) => {
   )
 
   debug('sending pong')
+  res.send(packet.buffer)
+})
+
+// Login packet (0x00, state = Login)
+packetHandler.use(0x00, (data, res, next) => {
+  if (socketState.get(res.socket) !== 'Login') return next()
+  const [username] = data.packet.read(Packet.String)
+  debug('received login request from %o', username.value)
+
+  const packetId = new Packet.VarInt(0x00)
+  const reason = new Packet.String(JSON.stringify(DISCONNECT_MSG))
+  const packetLength = new Packet.VarInt(packetId.length + reason.length)
+
+  const packet = new Packet()
+  packet.write(
+    packetLength,
+    packetId,
+    reason
+  )
+
+  debug('disconected %o', username.value)
   res.send(packet.buffer)
 })
 
