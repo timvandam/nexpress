@@ -15,8 +15,8 @@ const SERVER_STATUS = {
     protocol: 578
   },
   players: {
-    max: 100,
-    online: 12,
+    max: 876543210,
+    online: 123456789,
     sample: []
   },
   description: {
@@ -38,12 +38,13 @@ const packetHandler = new Nexpress.Pipeline()
 // Read incoming data. Put each packet it contains in the packetHandler
 app.use((data, res, next) => {
   for (let i = 0; i < data.buffer.length;) {
-    const packetLength = Packet.VarInt.fromBuffer(data.buffer.slice(i))
-    const packetId = Packet.VarInt.fromBuffer(data.buffer.slice(i + packetLength.length))
-    const packet = new Packet(data.buffer.slice(
-      i + packetLength.length + packetId.length,
-      i + packetLength.length + packetId.length + packetLength.value - packetId.length
-    ))
+    const packet = new Packet(data.buffer.slice(i))
+    const [packetLength, packetId] = packet.read(Packet.VarInt, Packet.VarInt)
+    const offset = i + [packetLength, packetId].reduce((len, val) => len + val.length, 0)
+    packet.buffer = data.buffer.slice(
+      offset,
+      offset + packetLength.value - packetId.length
+    )
 
     packet.id = packetId.value
 
@@ -53,7 +54,7 @@ app.use((data, res, next) => {
 
     packetHandler.exec(dataObj, res, next)
 
-    i += packet.length + packetLength.length + packetId.length
+    i = offset + packet.length
   }
 })
 
@@ -62,14 +63,7 @@ packetHandler.use(0x00, (data, res, next) => {
   if (socketState.get(res.socket) !== 'Handshaking') return next()
   debug('received handshake')
 
-  let i = 0
-  const protocolVersion = Packet.VarInt.fromBuffer(data.packet.buffer)
-  i += protocolVersion.length
-  const serverAddress = Packet.String.fromBuffer(data.packet.buffer.slice(i))
-  i += serverAddress.length
-  const serverPort = Packet.UShort.fromBuffer(data.packet.buffer.slice(i))
-  i += serverPort.length
-  const nextState = Packet.VarInt.fromBuffer(data.packet.buffer.slice(i))
+  const [,,, nextState] = data.packet.read(Packet.VarInt, Packet.String, Packet.UShort, Packet.VarInt)
 
   if (nextState.value === 1) socketState.set(res.socket, 'Status')
   if (nextState.value === 2) socketState.set(res.socket, 'Login')
@@ -87,9 +81,9 @@ packetHandler.use(0x00, (data, res, next) => {
   // Write a server status packet
   const packet = new Packet()
   packet.write(
-    packetLength.buffer,
-    packetId.buffer,
-    jsonResponse.buffer
+    packetLength,
+    packetId,
+    jsonResponse
   )
 
   debug('sending server status')
@@ -101,7 +95,7 @@ packetHandler.use(0x01, (data, res, next) => {
   if (socketState.get(res.socket) !== 'Status') return next()
   debug('received ping')
 
-  const payload = Packet.Long.fromBuffer(data.packet.buffer)
+  const [payload] = data.packet.read(Packet.Long)
 
   const packetId = new Packet.VarInt(0x01)
   const packetLength = new Packet.VarInt(packetId.length + payload.length)
@@ -109,9 +103,9 @@ packetHandler.use(0x01, (data, res, next) => {
   // Write a pong packet
   const packet = new Packet()
   packet.write(
-    packetLength.buffer,
-    packetId.buffer,
-    payload.buffer
+    packetLength,
+    packetId,
+    payload
   )
 
   debug('sending pong')
