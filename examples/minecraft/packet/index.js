@@ -1,5 +1,3 @@
-/* global BigInt */
-
 class Packet {
   constructor (buffer) {
     this.buffer = buffer || Buffer.alloc(0)
