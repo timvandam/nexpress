@@ -27,7 +27,7 @@ app.use((data, res, next) => {
 // Error handler middleware
 // Error handlers *must* have 4 parameters
 app.use((error, data, res, next) => {
-  handlerError(error)
+  handleError(error)
 })
 
 app.listen(3000, () => console.log('Nexpress is now listening on port 3000'))
