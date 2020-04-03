@@ -20,7 +20,7 @@ class PacketDeserializer {
 
       this.packets.push(packet)
 
-      i = offset + packet.length
+      i += offset + packet.length
     }
   }
 }
