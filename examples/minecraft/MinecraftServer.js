@@ -22,6 +22,7 @@ class MinecraftServer {
 
     this.app.use(this.initializeSocketState.bind(this))
     this.app.use(this.handlePackets.bind(this))
+    debug('created minecraft server')
   }
 
   initializeSocketState (data, res, next) {

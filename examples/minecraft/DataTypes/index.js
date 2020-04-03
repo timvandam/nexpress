@@ -60,7 +60,7 @@ class _String extends DataType {
 
 _String.fromBuffer = function (buffer) {
   const length = VarInt.fromBuffer(buffer)
-  return new _String(buffer.slice(length.length, length.length + length.value).to_String('utf8'))
+  return new _String(buffer.slice(length.length, length.length + length.value).toString('utf8'))
 }
 
 class UShort extends DataType {
